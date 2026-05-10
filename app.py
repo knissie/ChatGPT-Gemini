@@ -809,6 +809,23 @@ div[data-testid="collapsedControl"] {
     }
 }
 
+
+/* ===== Sidebar Auto-Hide Disabled ===== */
+section[data-testid="stSidebar"] {
+    transform: none !important;
+    margin-left: 0 !important;
+}
+
+div[data-testid="collapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.sidebar-edge-toggle {
+    display: none !important;
+}
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -829,50 +846,9 @@ if "multi_mode" not in st.session_state:
 if "single_ai" not in st.session_state:
     st.session_state.single_ai = "ChatGPT"
 
-def apply_sidebar_visibility():
-    """サイドバーを左へ退避し、左端の >> ボタンで復帰できるようにする。"""
-    if st.session_state.sidebar_hidden:
-        st.markdown(
-            """
-<style>
-section[data-testid="stSidebar"] {
-    transform: translateX(-105%) !important;
-    transition: transform 0.18s ease-out !important;
-}
-
-.block-container {
-    max-width: 980px;
-}
-
-.sidebar-edge-toggle {
-    position: fixed;
-    top: 0.65rem;
-    left: 0.55rem;
-    z-index: 999999;
-}
-.sidebar-edge-toggle button {
-    border-radius: 999px !important;
-    padding: 0.25rem 0.6rem !important;
-    min-height: 2rem !important;
-    width: auto !important;
-}
-</style>
-""",
-            unsafe_allow_html=True,
-        )
-
-
-apply_sidebar_visibility()
-
-if st.session_state.sidebar_hidden:
-    st.markdown('<div class="sidebar-edge-toggle">', unsafe_allow_html=True)
-    if st.button(">>", key="show_sidebar_edge_btn"):
-        st.session_state.sidebar_hidden = False
-        st.rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
-
+# サイドバーは自動で隠さない。
+# PC/iPhoneともにStreamlit標準のサイドバー表示に任せる。
+# 理由：CSSで強制的に隠すと、PCでは復帰ボタンが出ない／iPhoneでは左端に崩れるため。
 
 def split_numbered_items(text: str):
     if not text:
@@ -1322,9 +1298,6 @@ for turn in st.session_state.turns:
 question = st.chat_input("質問を入力...（Enterで送信）")
 
 if question:
-    st.session_state.sidebar_hidden = True
-    apply_sidebar_visibility()
-
     st.markdown(f'<div class="user-box">{html.escape(question)}</div>', unsafe_allow_html=True)
 
     chatgpt_answer = ""
@@ -1464,5 +1437,4 @@ if question:
         }
     )
 
-    # 質問送信後はサイドバーを隠す状態にする。
-    st.session_state.sidebar_hidden = True
+    # 質問送信後もサイドバーは自動で隠さない。
