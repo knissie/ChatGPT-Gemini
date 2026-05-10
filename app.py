@@ -780,271 +780,39 @@ if "turns" not in st.session_state:
 if "sidebar_hidden" not in st.session_state:
     st.session_state.sidebar_hidden = False
 
+if "execution_mode" not in st.session_state:
+    st.session_state.execution_mode = "Multi"
+
+if "multi_mode" not in st.session_state:
+    st.session_state.multi_mode = "独立回答"
+
+if "single_ai" not in st.session_state:
+    st.session_state.single_ai = "ChatGPT"
+
 def apply_sidebar_visibility():
-    """質問送信後はサイドバーを非表示にする。"""
+    """質問送信後はサイドバーを折りたたみ風にする。"""
     if st.session_state.sidebar_hidden:
         st.markdown(
             """
 <style>
 section[data-testid="stSidebar"] {
-    display: none !important;
+    margin-left: -22rem !important;
 }
+
+div[data-testid="collapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 999999 !important;
+}
+
 .block-container {
     max-width: 980px;
 }
-
-/* フェード風表示 */
-@keyframes fadeSlideIn {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-.answer-card {
-    animation: fadeSlideIn 0.28s ease-out;
-}
-.user-box {
-    animation: fadeSlideIn 0.22s ease-out;
-}
-
-
-/* UI階層・余白調整 */
-.answer-card {
-    padding: 1.05rem 1.1rem;
-    margin: 0.9rem 0 1.15rem 0;
-}
-.answer-card.chatgpt,
-.answer-card.gemini {
-    background: #ffffff;
-}
-.answer-card.diff {
-    background: #fff7ed;
-    border-color: #fed7aa;
-}
-.answer-card.cross {
-    background: #faf5ff;
-    border-color: #ddd6fe;
-}
-.answer-title {
-    letter-spacing: 0.01em;
-}
-.answer-card.chatgpt .answer-title,
-.answer-card.gemini .answer-title {
-    color: #111827;
-}
-.answer-card.diff .answer-title {
-    color: #9a3412;
-}
-
-/* 要点カードを少し強調 */
-.answer-card.chatgpt:has(.numbered-block),
-.answer-card.gemini:has(.numbered-block) {
-    background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
-}
-.numbered-row {
-    padding: 0.18rem 0;
-}
-.numbered-mark {
-    min-width: 1.4rem;
-    color: #111827;
-}
-.numbered-text {
-    font-weight: 500;
-}
-
-/* 詳細カードは少し控えめ */
-.answer-card:has(h2) {
-    background: #ffffff;
-}
-.answer-card:has(h2) .answer-title {
-    color: #374151;
-}
-.answer-card:has(h2) .answer-model {
-    color: #9ca3af;
-}
-
-/* ローディング風カード */
-.loading-card {
-    border: 1px solid #fed7aa;
-    border-left: 4px solid #f59e0b;
-    background: #fffbeb;
-    padding: 1rem 1.1rem;
-    border-radius: 1rem;
-    margin: 0.9rem 0 1.15rem 0;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-    animation: fadeSlideIn 0.28s ease-out;
-}
-.loading-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #9a3412;
-    margin-bottom: 0.35rem;
-}
-.loading-dots::after {
-    content: "";
-    animation: dots 1.2s steps(4, end) infinite;
-}
-@keyframes dots {
-    0% { content: ""; }
-    25% { content: "."; }
-    50% { content: ".."; }
-    75% { content: "..."; }
-    100% { content: ""; }
-}
-
-/* サイドバー復帰ボタンを控えめにする */
-div[data-testid="stButton"] > button {
-    border-radius: 999px;
-}
-
-
-/* ===== Dark Mode Fix ===== */
-@media (prefers-color-scheme: dark) {
-
-    body {
-        background-color: #000000;
-        color: #f9fafb;
-    }
-
-    .answer-card {
-        background: #111827;
-        border-color: #374151;
-    }
-
-    .answer-title {
-        color: #f9fafb;
-    }
-
-    .answer-model {
-        color: #9ca3af;
-    }
-
-    .numbered-mark {
-        color: #f9fafb;
-    }
-
-    .numbered-text {
-        color: #e5e7eb;
-    }
-
-    .user-box {
-        background: #1f2937;
-        border-color: #374151;
-        color: #f9fafb;
-    }
-
-    textarea, input {
-        color: #f9fafb !important;
-        background-color: #111827 !important;
-    }
-}
-
-
-/* ===== Dark Mode Additional Visibility Fix ===== */
-@media (prefers-color-scheme: dark) {
-
-    /* ユーザー入力欄 */
-    textarea,
-    textarea::placeholder,
-    input,
-    input::placeholder,
-    [data-testid="stChatInput"] textarea {
-        color: #f9fafb !important;
-        background-color: #111827 !important;
-        caret-color: #f9fafb !important;
-        opacity: 1 !important;
-    }
-
-    /* ユーザー質問カード */
-    .user-box,
-    .user-box * {
-        color: #f9fafb !important;
-    }
-
-    /* 箇条書き番号 */
-    .numbered-mark {
-        color: #f9fafb !important;
-        font-weight: 700 !important;
-    }
-
-    /* 箇条書き本文 */
-    .numbered-text {
-        color: #f3f4f6 !important;
-    }
-
-    /* 見出し */
-    h1, h2, h3, h4 {
-        color: #f9fafb !important;
-    }
-}
-
-
-/* ===== Light Mode Visibility Fix ===== */
-@media (prefers-color-scheme: light) {
-
-    .numbered-mark {
-        color: #111827 !important;
-        font-weight: 700 !important;
-    }
-
-    .numbered-text {
-        color: #111827 !important;
-    }
-
-    .user-box,
-    .user-box * {
-        color: #111827 !important;
-    }
-
-    textarea,
-    textarea::placeholder,
-    input,
-    input::placeholder,
-    [data-testid="stChatInput"] textarea {
-        color: #111827 !important;
-        background-color: #ffffff !important;
-        caret-color: #111827 !important;
-    }
-}
-
-
-/* ===== Sidebar Toggle Button ===== */
-.sidebar-restore-wrapper {
-    position: fixed;
-    top: 0.75rem;
-    left: 0.75rem;
-    z-index: 99999;
-}
-.sidebar-restore-wrapper button {
-    border-radius: 999px !important;
-    padding: 0.25rem 0.65rem !important;
-    min-height: 2rem !important;
-}
-@media (prefers-color-scheme: dark) {
-    .sidebar-restore-wrapper button {
-        background: #111827 !important;
-        color: #f9fafb !important;
-        border: 1px solid #374151 !important;
-    }
-}
-@media (prefers-color-scheme: light) {
-    .sidebar-restore-wrapper button {
-        background: #ffffff !important;
-        color: #111827 !important;
-        border: 1px solid #d1d5db !important;
-    }
-}
-
 </style>
 """,
             unsafe_allow_html=True,
         )
-
-
 apply_sidebar_visibility()
 
 
@@ -1436,6 +1204,8 @@ with st.sidebar:
         key="execution_mode",
     )
 
+    mode = st.session_state.execution_mode
+
     if mode == "Multi":
         target = "両方"
         diff_enabled = True
@@ -1447,6 +1217,8 @@ with st.sidebar:
             key="multi_mode",
         )
 
+        multi_mode = st.session_state.multi_mode
+
     else:
         single_ai = st.radio(
             "Singleで使うAI",
@@ -1454,6 +1226,8 @@ with st.sidebar:
             horizontal=True,
             key="single_ai",
         )
+
+        single_ai = st.session_state.single_ai
         if single_ai == "ChatGPT":
             target = "ChatGPTのみ"
         else:
