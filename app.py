@@ -654,6 +654,64 @@ div[data-testid="stButton"] > button {
     }
 }
 
+
+/* ===== Final Chat Input Force Background ===== */
+
+/* Light */
+@media (prefers-color-scheme: light) {
+
+    div[data-testid="stChatInput"] {
+        background: #f3f4f6 !important;
+        border: 1px solid #d1d5db !important;
+    }
+
+    div[data-testid="stChatInput"] > div {
+        background: #f3f4f6 !important;
+    }
+
+    div[data-testid="stChatInput"] textarea,
+    div[data-testid="stChatInput"] textarea:focus,
+    div[data-testid="stChatInput"] textarea:active,
+    [data-testid="stChatInput"] textarea {
+        background-color: #f3f4f6 !important;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+        box-shadow: none !important;
+    }
+}
+
+/* Dark */
+@media (prefers-color-scheme: dark) {
+
+    div[data-testid="stChatInput"] {
+        background: #111827 !important;
+        border: 1px solid #374151 !important;
+    }
+
+    div[data-testid="stChatInput"] > div {
+        background: #111827 !important;
+    }
+
+    div[data-testid="stChatInput"] textarea,
+    div[data-testid="stChatInput"] textarea:focus,
+    div[data-testid="stChatInput"] textarea:active,
+    [data-testid="stChatInput"] textarea {
+        background-color: #111827 !important;
+        color: #f9fafb !important;
+        -webkit-text-fill-color: #f9fafb !important;
+        box-shadow: none !important;
+    }
+}
+
+
+/* ===== Native Sidebar Toggle Visibility ===== */
+div[data-testid="collapsedControl"] {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 99999 !important;
+}
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -672,12 +730,6 @@ def apply_sidebar_visibility():
             """
 <style>
 section[data-testid="stSidebar"] {
-    display: none !important;
-}
-button[kind="header"] {
-    display: none !important;
-}
-div[data-testid="collapsedControl"] {
     display: none !important;
 }
 .block-container {
@@ -937,11 +989,6 @@ div[data-testid="stButton"] > button {
 
 
 apply_sidebar_visibility()
-
-if st.session_state.sidebar_hidden:
-    if st.button("<<<"):
-        st.session_state.sidebar_hidden = False
-        st.rerun()
 
 
 
@@ -1284,15 +1331,31 @@ def get_answer_bundle(ai_name: str, question: str, context_snapshot: str = ""):
     }
 
 
+def render_cross_block(text: str):
+    """相互見解カード用。要点はHTMLで①②③を縦並び、詳細はMarkdownで表示する。"""
+    if not text:
+        return
+
+    if "【詳細】" in text:
+        summary_part, detail_part = text.split("【詳細】", 1)
+        render_numbered_block(summary_part)
+        st.markdown("### 詳細")
+        st.markdown(detail_part.strip())
+    else:
+        render_numbered_block(text)
+
+
 def render_card(title: str, text: str, model: str = "", css_class: str = ""):
     st.markdown(f'<div class="answer-card {css_class}">', unsafe_allow_html=True)
     st.markdown(f'<div class="answer-title">{html.escape(title)}</div>', unsafe_allow_html=True)
     if model:
         st.markdown(f'<div class="answer-model">使用モデル：{html.escape(model)}</div>', unsafe_allow_html=True)
 
-    if "要点" in title:
+    if css_class == "cross":
+        render_cross_block(text)
+    elif "要点" in title:
         render_numbered_block(text)
-    elif title in ["差分", "一致点と相違点", "一致点と相違点"]:
+    elif title in ["差分", "一致点と相違点"]:
         render_diff_block(text)
     else:
         st.markdown(align_detail_headings_to_summary(text))
