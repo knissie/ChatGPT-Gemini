@@ -492,6 +492,139 @@ div[data-testid="stButton"] > button {
     }
 }
 
+
+/* ===== Final Dark Mode Override ===== */
+@media (prefers-color-scheme: dark) {
+
+    html, body, .stApp, [data-testid="stAppViewContainer"] {
+        background-color: #000000 !important;
+        color: #f9fafb !important;
+    }
+
+    .block-container {
+        background-color: #000000 !important;
+        color: #f9fafb !important;
+    }
+
+    .answer-card,
+    .answer-card.chatgpt,
+    .answer-card.gemini,
+    .answer-card.diff,
+    .answer-card.cross,
+    .answer-card:has(h2),
+    .answer-card.chatgpt:has(.numbered-block),
+    .answer-card.gemini:has(.numbered-block) {
+        background: #111827 !important;
+        border-color: #374151 !important;
+        color: #f9fafb !important;
+        box-shadow: 0 1px 2px rgba(255,255,255,0.04) !important;
+    }
+
+    .answer-card.chatgpt {
+        border-left-color: #34d399 !important;
+    }
+
+    .answer-card.gemini {
+        border-left-color: #60a5fa !important;
+    }
+
+    .answer-card.diff {
+        border-left-color: #fbbf24 !important;
+    }
+
+    .answer-card.cross {
+        border-left-color: #a78bfa !important;
+    }
+
+    .answer-title,
+    .answer-card.chatgpt .answer-title,
+    .answer-card.gemini .answer-title,
+    .answer-card.diff .answer-title,
+    .answer-card.cross .answer-title,
+    .answer-card:has(h2) .answer-title {
+        color: #f9fafb !important;
+    }
+
+    .answer-model,
+    .answer-card:has(h2) .answer-model {
+        color: #d1d5db !important;
+    }
+
+    .numbered-mark,
+    .numbered-row .numbered-mark {
+        color: #ffffff !important;
+        font-weight: 800 !important;
+    }
+
+    .numbered-text,
+    .numbered-row .numbered-text {
+        color: #f3f4f6 !important;
+        font-weight: 500 !important;
+    }
+
+    .diff-section-label {
+        color: #fbbf24 !important;
+    }
+
+    .user-box,
+    .user-box * {
+        background: #1f2937 !important;
+        border-color: #374151 !important;
+        color: #f9fafb !important;
+    }
+
+    div[data-testid="stMarkdownContainer"],
+    div[data-testid="stMarkdownContainer"] *,
+    p, span, li, h1, h2, h3, h4, h5, h6 {
+        color: #f9fafb !important;
+    }
+
+    textarea,
+    textarea::placeholder,
+    input,
+    input::placeholder,
+    [data-testid="stChatInput"] textarea,
+    [data-testid="stChatInput"] textarea::placeholder,
+    [data-testid="stTextArea"] textarea,
+    [data-testid="stTextInput"] input {
+        color: #f9fafb !important;
+        background-color: #111827 !important;
+        caret-color: #f9fafb !important;
+        opacity: 1 !important;
+        -webkit-text-fill-color: #f9fafb !important;
+    }
+
+    [data-testid="stChatInput"],
+    [data-testid="stChatInput"] > div,
+    [data-testid="stChatInput"] div {
+        background-color: #111827 !important;
+        color: #f9fafb !important;
+    }
+
+    section[data-testid="stSidebar"],
+    section[data-testid="stSidebar"] * {
+        background-color: #111827 !important;
+        color: #f9fafb !important;
+    }
+
+    div[role="radiogroup"] > label {
+        background-color: #111827 !important;
+        border-color: #374151 !important;
+        color: #f9fafb !important;
+    }
+
+    div[role="radiogroup"] > label:hover {
+        background-color: #1f2937 !important;
+    }
+
+    button,
+    div[data-testid="stButton"] > button {
+        background-color: #111827 !important;
+        color: #f9fafb !important;
+        border-color: #374151 !important;
+    }
+}
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -777,7 +910,7 @@ div[data-testid="stButton"] > button {
 apply_sidebar_visibility()
 
 if st.session_state.sidebar_hidden:
-    if st.button("サイドバーを表示"):
+    if st.button("<<<"):
         st.session_state.sidebar_hidden = False
         st.rerun()
 
@@ -1182,11 +1315,13 @@ for turn in st.session_state.turns:
     if turn.get("gemini_cross"):
         render_card("Gemini → ChatGPTへの見解", turn["gemini_cross"], turn.get("gemini_cross_model", ""), "cross")
 
-    if turn.get("chatgpt_detail"):
-        render_card("ChatGPT 詳細", turn["chatgpt_detail"], turn.get("chatgpt_model", ""), "chatgpt")
+    if not (turn.get("chatgpt_cross") or turn.get("gemini_cross")):
 
-    if turn.get("gemini_detail"):
-        render_card("Gemini 詳細", turn["gemini_detail"], turn.get("gemini_model", ""), "gemini")
+        if turn.get("chatgpt_detail"):
+            render_card("ChatGPT 詳細", turn["chatgpt_detail"], turn.get("chatgpt_model", ""), "chatgpt")
+
+        if turn.get("gemini_detail"):
+            render_card("Gemini 詳細", turn["gemini_detail"], turn.get("gemini_model", ""), "gemini")
 
 
 question = st.chat_input("質問を入力...（Enterで送信）")
