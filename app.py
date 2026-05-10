@@ -811,19 +811,43 @@ div[data-testid="collapsedControl"] {
 
 
 /* ===== Sidebar Auto-Hide Disabled ===== */
-section[data-testid="stSidebar"] {
-    transform: none !important;
-    margin-left: 0 !important;
-}
-
-div[data-testid="collapsedControl"] {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
+/* Native Streamlit sidebar behavior is used. Do not force sidebar position. */
 .sidebar-edge-toggle {
     display: none !important;
+}
+
+/* ===== Cross Card Headings + iPhone Sidebar Fix ===== */
+.answer-subtitle {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: 0.7rem;
+    margin-bottom: 0.35rem;
+    line-height: 1.45;
+    color: #111827;
+}
+
+/* iPhoneでサイドバーを閉じたとき、左端に文字が残るのを防ぐ。
+   Streamlit標準の開閉挙動を優先し、本文側からCSSで位置を強制しない。 */
+@media (max-width: 767px) {
+    section[data-testid="stSidebar"] {
+        overflow: hidden !important;
+    }
+
+    section[data-testid="stSidebar"] * {
+        max-width: 100% !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .answer-subtitle {
+        color: #f9fafb !important;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .answer-subtitle {
+        color: #111827 !important;
+    }
 }
 
 </style>
@@ -1190,16 +1214,20 @@ def get_answer_bundle(ai_name: str, question: str, context_snapshot: str = ""):
 
 
 def render_cross_block(text: str):
-    """相互見解カード用。要点はHTMLで①②③を縦並び、詳細はMarkdownで表示する。"""
+    """相互見解カード用。要点はHTMLで①②③を縦並び、詳細は通常サイズの小見出し付きで表示する。"""
     if not text:
         return
 
     if "【詳細】" in text:
         summary_part, detail_part = text.split("【詳細】", 1)
+
+        st.markdown('<div class="answer-subtitle">要点</div>', unsafe_allow_html=True)
         render_numbered_block(summary_part)
-        st.markdown("### 詳細")
+
+        st.markdown('<div class="answer-subtitle">詳細</div>', unsafe_allow_html=True)
         st.markdown(detail_part.strip())
     else:
+        st.markdown('<div class="answer-subtitle">要点</div>', unsafe_allow_html=True)
         render_numbered_block(text)
 
 
