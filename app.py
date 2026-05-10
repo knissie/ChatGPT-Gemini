@@ -769,6 +769,46 @@ div[data-testid="collapsedControl"] {
     }
 }
 
+
+/* ===== Final Sidebar Edge Toggle + Chat Input Fix ===== */
+@media (prefers-color-scheme: light) {
+    .sidebar-edge-toggle button {
+        background: #ffffff !important;
+        color: #111827 !important;
+        border: 1px solid #d1d5db !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.10) !important;
+    }
+
+    div[data-testid="stChatInput"],
+    div[data-testid="stChatInput"] *,
+    div[data-testid="stChatInput"] textarea,
+    div[data-testid="stChatInput"] textarea::placeholder {
+        background-color: #f3f4f6 !important;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+        opacity: 1 !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .sidebar-edge-toggle button {
+        background: #111827 !important;
+        color: #f9fafb !important;
+        border: 1px solid #374151 !important;
+        box-shadow: 0 2px 10px rgba(255,255,255,0.08) !important;
+    }
+
+    div[data-testid="stChatInput"],
+    div[data-testid="stChatInput"] *,
+    div[data-testid="stChatInput"] textarea,
+    div[data-testid="stChatInput"] textarea::placeholder {
+        background-color: #111827 !important;
+        color: #f9fafb !important;
+        -webkit-text-fill-color: #f9fafb !important;
+        opacity: 1 !important;
+    }
+}
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -790,30 +830,47 @@ if "single_ai" not in st.session_state:
     st.session_state.single_ai = "ChatGPT"
 
 def apply_sidebar_visibility():
-    """質問送信後はサイドバーを折りたたみ風にする。"""
+    """サイドバーを左へ退避し、左端の >> ボタンで復帰できるようにする。"""
     if st.session_state.sidebar_hidden:
         st.markdown(
             """
 <style>
 section[data-testid="stSidebar"] {
-    margin-left: -22rem !important;
-}
-
-div[data-testid="collapsedControl"] {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    z-index: 999999 !important;
+    transform: translateX(-105%) !important;
+    transition: transform 0.18s ease-out !important;
 }
 
 .block-container {
     max-width: 980px;
 }
+
+.sidebar-edge-toggle {
+    position: fixed;
+    top: 0.65rem;
+    left: 0.55rem;
+    z-index: 999999;
+}
+.sidebar-edge-toggle button {
+    border-radius: 999px !important;
+    padding: 0.25rem 0.6rem !important;
+    min-height: 2rem !important;
+    width: auto !important;
+}
 </style>
 """,
             unsafe_allow_html=True,
         )
+
+
 apply_sidebar_visibility()
+
+if st.session_state.sidebar_hidden:
+    st.markdown('<div class="sidebar-edge-toggle">', unsafe_allow_html=True)
+    if st.button(">>", key="show_sidebar_edge_btn"):
+        st.session_state.sidebar_hidden = False
+        st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 
@@ -1204,8 +1261,6 @@ with st.sidebar:
         key="execution_mode",
     )
 
-    mode = st.session_state.execution_mode
-
     if mode == "Multi":
         target = "両方"
         diff_enabled = True
@@ -1217,8 +1272,6 @@ with st.sidebar:
             key="multi_mode",
         )
 
-        multi_mode = st.session_state.multi_mode
-
     else:
         single_ai = st.radio(
             "Singleで使うAI",
@@ -1226,8 +1279,6 @@ with st.sidebar:
             horizontal=True,
             key="single_ai",
         )
-
-        single_ai = st.session_state.single_ai
         if single_ai == "ChatGPT":
             target = "ChatGPTのみ"
         else:
@@ -1271,6 +1322,9 @@ for turn in st.session_state.turns:
 question = st.chat_input("質問を入力...（Enterで送信）")
 
 if question:
+    st.session_state.sidebar_hidden = True
+    apply_sidebar_visibility()
+
     st.markdown(f'<div class="user-box">{html.escape(question)}</div>', unsafe_allow_html=True)
 
     chatgpt_answer = ""
@@ -1410,6 +1464,5 @@ if question:
         }
     )
 
-    # 質問送信後は、結果表示画面でサイドバーを自動的に隠す。
+    # 質問送信後はサイドバーを隠す状態にする。
     st.session_state.sidebar_hidden = True
-    st.rerun()
