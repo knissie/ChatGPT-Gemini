@@ -625,6 +625,35 @@ div[data-testid="stButton"] > button {
     }
 }
 
+
+/* ===== Chat Input Background Tuning ===== */
+
+/* Light mode */
+@media (prefers-color-scheme: light) {
+    div[data-testid="stChatInput"] {
+        background: #f3f4f6 !important;
+    }
+
+    div[data-testid="stChatInput"] textarea,
+    [data-testid="stChatInput"] textarea {
+        background: #f3f4f6 !important;
+        color: #111827 !important;
+    }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    div[data-testid="stChatInput"] {
+        background: #111827 !important;
+    }
+
+    div[data-testid="stChatInput"] textarea,
+    [data-testid="stChatInput"] textarea {
+        background: #111827 !important;
+        color: #f9fafb !important;
+    }
+}
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -1034,11 +1063,20 @@ def needs_cross_comment(question: str) -> bool:
         "相互コメント",
         "相手のコメント",
         "相手の見解",
+        "相手の意見",
+        "相手の回答を踏まえて",
         "お互いにコメント",
         "お互いのコメント",
+        "お互いの見解",
+        "互いの見解",
+        "相互の見解",
+        "双方の見解",
+        "双方にコメント",
+        "双方コメント",
+        "見解にコメント",
+        "コメントして",
+        "コメントをして",
         "反論",
-        "相手の回答を踏まえて",
-        "相手の意見",
     ]
     return any(k in question for k in keywords)
 
@@ -1280,6 +1318,13 @@ with st.sidebar:
     if mode == "Multi":
         target = "両方"
         diff_enabled = True
+
+        multi_mode = st.radio(
+            "Multiの使い方",
+            ["独立回答", "相互見解"],
+            horizontal=True,
+        )
+
     else:
         single_ai = st.radio(
             "Singleで使うAI",
@@ -1290,7 +1335,9 @@ with st.sidebar:
             target = "ChatGPTのみ"
         else:
             target = "Geminiのみ"
+
         diff_enabled = False
+        multi_mode = "独立回答"
 
     if st.button("履歴をクリア", use_container_width=True):
         st.session_state.turns = []
@@ -1388,7 +1435,7 @@ if question:
 
     cross_mode = (
         target == "両方"
-        and needs_cross_comment(question)
+        and multi_mode == "相互見解"
         and chatgpt_answer
         and gemini_answer
     )
@@ -1414,7 +1461,7 @@ if question:
         if gemini_detail:
             render_card_smooth("Gemini 詳細", gemini_detail, gemini_model, "gemini")
 
-    # 相互コメントモード
+    # 相互見解モード
     else:
 
         with st.spinner("相互コメントを作成中..."):
@@ -1448,6 +1495,7 @@ if question:
         {
             "question": question,
             "target": target,
+            "multi_mode": multi_mode,
             "chatgpt": chatgpt_answer,
             "chatgpt_model": chatgpt_model,
             "chatgpt_summary": chatgpt_summary,
