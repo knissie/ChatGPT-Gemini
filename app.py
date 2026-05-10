@@ -712,6 +712,63 @@ div[data-testid="collapsedControl"] {
     z-index: 99999 !important;
 }
 
+
+/* ===== Final Chat Input Empty Placeholder Background Fix ===== */
+
+/* Light mode: input container and empty placeholder state */
+@media (prefers-color-scheme: light) {
+    div[data-testid="stChatInput"],
+    div[data-testid="stChatInput"] *,
+    div[data-testid="stChatInput"] > div,
+    div[data-testid="stChatInput"] > div > div,
+    div[data-testid="stChatInput"] section,
+    div[data-testid="stChatInput"] form {
+        background-color: #f3f4f6 !important;
+    }
+
+    div[data-testid="stChatInput"] textarea,
+    div[data-testid="stChatInput"] textarea::placeholder,
+    div[data-testid="stChatInput"] [contenteditable="true"],
+    div[data-testid="stChatInput"] [contenteditable="true"]::placeholder {
+        background-color: #f3f4f6 !important;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+        opacity: 1 !important;
+    }
+
+    div[data-testid="stChatInput"] {
+        border: 1px solid #d1d5db !important;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.06) !important;
+    }
+}
+
+/* Dark mode: input container and empty placeholder state */
+@media (prefers-color-scheme: dark) {
+    div[data-testid="stChatInput"],
+    div[data-testid="stChatInput"] *,
+    div[data-testid="stChatInput"] > div,
+    div[data-testid="stChatInput"] > div > div,
+    div[data-testid="stChatInput"] section,
+    div[data-testid="stChatInput"] form {
+        background-color: #111827 !important;
+    }
+
+    div[data-testid="stChatInput"] textarea,
+    div[data-testid="stChatInput"] textarea::placeholder,
+    div[data-testid="stChatInput"] [contenteditable="true"],
+    div[data-testid="stChatInput"] [contenteditable="true"]::placeholder {
+        background-color: #111827 !important;
+        color: #f9fafb !important;
+        -webkit-text-fill-color: #f9fafb !important;
+        opacity: 1 !important;
+    }
+
+    div[data-testid="stChatInput"] {
+        border: 1px solid #374151 !important;
+        box-shadow: 0 4px 18px rgba(255,255,255,0.04) !important;
+    }
+}
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -1376,6 +1433,7 @@ with st.sidebar:
         ["Multi", "Single"],
         horizontal=True,
         label_visibility="collapsed",
+        key="execution_mode",
     )
 
     if mode == "Multi":
@@ -1386,6 +1444,7 @@ with st.sidebar:
             "Multiの使い方",
             ["独立回答", "相互見解"],
             horizontal=True,
+            key="multi_mode",
         )
 
     else:
@@ -1393,6 +1452,7 @@ with st.sidebar:
             "Singleで使うAI",
             ["ChatGPT", "Gemini"],
             horizontal=True,
+            key="single_ai",
         )
         if single_ai == "ChatGPT":
             target = "ChatGPTのみ"
