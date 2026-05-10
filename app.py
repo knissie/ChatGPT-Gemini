@@ -7,7 +7,6 @@ from concurrent.futures import ThreadPoolExecutor
 try:
     OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
-
 except Exception:
     from api_keys import OPENAI_API_KEY, GEMINI_API_KEY
 
@@ -16,7 +15,7 @@ except Exception:
 # - app.pyからStreamlitを起動しない
 # - APIキーはクラウドでは st.secrets、ローカルでは api_keys.py から読み込む
 # - ChatGPT/Gemini初回回答は並列実行
-# - 表示順：ChatGPT要点 → Gemini要点 → 差分 → ChatGPT詳細 → Gemini詳細
+# - 通常時：ChatGPT要点 → Gemini要点 → 一致点と相違点 → ChatGPT詳細 → Gemini詳細
 # - 要点/差分はMarkdownではなくHTMLで①②③を強制縦並び表示
 # ============================================================
 
